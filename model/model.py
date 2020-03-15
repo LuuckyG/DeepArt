@@ -13,28 +13,6 @@ def vgg_layers(layer_names):
     return model
 
 
-def gram_matrix(input_tensor):
-    # We make the image channels first
-    channels = int(input_tensor.shape[-1])
-    input_tensor = tf.reshape(input_tensor, [-1, channels])
-    num_locations = tf.shape(input_tensor)[0]
-    gram = tf.matmul(input_tensor, input_tensor, transpose_a=True)
-    return gram / tf.cast(num_locations, tf.float32)
-
-
-def get_style_loss(base_style, gram_target):
-    """Expects two images of dimension h, w, c"""
-    # height, width, num filters of each layer
-    height, width, channels = base_style.get_shape().as_list()
-    gram_style = gram_matrix(base_style)
-
-    return tf.reduce_mean(tf.square(gram_style - gram_target))
-
-
-def get_content_loss(base_content, target):
-    return tf.reduce_mean(tf.square(base_content - target))
-
-
 class StyleModel(tf.keras.models.Model):
     def __init__(self, style_layers, content_layers):
         super(StyleModel, self).__init__()

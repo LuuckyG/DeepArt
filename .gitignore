@@ -1,2 +1,4 @@
 # Default ignored files
 /workspace.xml
+vgg19_weights.h5
+/model/__pycache__
