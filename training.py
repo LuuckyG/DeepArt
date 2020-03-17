@@ -247,7 +247,6 @@ def run_style_transfer(results_path,
         opt.apply_gradients([(grads, init_image)])
         clipped = tf.clip_by_value(init_image, min_vals, max_vals)
         init_image.assign(clipped)
-        end_time = time.time() 
 
         if loss < best_loss:
             # Update best loss and best image from total loss. 
