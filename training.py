@@ -1,11 +1,20 @@
 import time
 import numpy as np
-import tensorflow as tf
-
 from PIL import Image
 from pathlib import Path
 
-# Content layer where will pull our feature maps
+import tensorflow as tf
+from tensorflow.compat.v1 import ConfigProto
+from tensorflow.compat.v1 import InteractiveSession
+
+# TensorFlow GPU settings
+config = ConfigProto()
+config.gpu_options.allow_growth = True
+config.gpu_options.per_process_gpu_memory_fraction = 0.75
+session = InteractiveSession(config=config)
+
+
+# Content layer where we will pull our feature maps from
 content_layers = ['block5_conv2']
 
 # Style layer of interest
@@ -271,7 +280,7 @@ def run_style_transfer(results_path,
 
 # Set up some global values here
 content_path = r"./images/taipei101.jpg"
-style_path = r"./images/rain_princess.jpg"
+style_path = r"./images/scream.jpg"
 results_path = Path('./results')
 results_path.mkdir(exist_ok=True, parents=True)
 
