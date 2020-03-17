@@ -9,10 +9,6 @@ from pathlib import Path
 
 from .model import StyleModel
 
-# Set up some global values here
-content_path = r"./images/taipei101.jpg"
-style_path = r"./images/rain_princess.jpg"
-
 # Content layer where will pull our feature maps
 content_layers = ['block5_conv2']
 
@@ -201,7 +197,8 @@ def get_model():
     return tf.keras.models.Model(vgg.input, model_outputs)
 
 
-def run_style_transfer(content_path, 
+def run_style_transfer(results_path,
+                       content_path, 
                        style_path,
                        num_iterations=1000,
                        content_weight=1e3, 
@@ -225,10 +222,7 @@ def run_style_transfer(content_path,
     init_image = tf.Variable(init_image, dtype=tf.float32)
 
     # Create our optimizer
-    opt = tf.keras.optimizers.Adam(learning_rate=5.0)
-
-    # For displaying intermediate images 
-    iter_count = 1
+    opt = tf.keras.optimizers.Adam(learning_rate=5, beta_1=0.99, epsilon=1e-1)
 
     # Store our best result
     best_loss, best_img = float('inf'), None
@@ -243,9 +237,6 @@ def run_style_transfer(content_path,
         'content_features': content_features
     }
 
-    # For displaying
-    plt.figure(figsize=(15, 15))
-    num_rows = (num_iterations / display_num) // 5
     start_time = time.time()
     global_start = time.time()
 
@@ -274,7 +265,10 @@ def run_style_transfer(content_path,
                 'content loss: {:.4e}, '
                 'time: {:.4f}s'.format(loss, style_score, content_score, time.time() - start_time))
             start_time = time.time()
-            
+
+            im = Image.fromarray(deprocess_img(init_image.numpy()))
+            im.save(results_path.as_posix() + '/test_{}.jpg'.format(i))
+
         # # Display intermediate images
         # if iter_count > num_rows * 5: 
         #     continue
@@ -293,11 +287,17 @@ def run_style_transfer(content_path,
     return best_img, best_loss
 
 
-best, best_loss = run_style_transfer(content_path, 
-                                     style_path, 
-                                     num_iterations=10)
+# Set up some global values here
+content_path = r"./images/taipei101.jpg"
+style_path = r"./images/rain_princess.jpg"
+results_path = Path('./results')
+results_path.mkdir(exist_ok=True, parents=True)
 
-# Make results folder
-results_folder = Path('./results')
-results_folder.mkdir(exist_ok=True, parents=True)
-plt.savefig(results_folder.as_posix() + '/test.jpg')
+best, best_loss = run_style_transfer(results_path,
+                                     content_path, 
+                                     style_path, 
+                                     num_iterations=1000)
+
+# Save best result
+im = Image.fromarray(deprocess_img(best.numpy()))
+im.save(results_path.as_posix() + '/best.jpg')
