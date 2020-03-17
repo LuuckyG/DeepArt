@@ -1,13 +1,9 @@
-import os
 import time
 import numpy as np
 import tensorflow as tf
-import matplotlib.pyplot as plt
 
 from PIL import Image
 from pathlib import Path
-
-from .model import StyleModel
 
 # Content layer where will pull our feature maps
 content_layers = ['block5_conv2']
@@ -267,20 +263,7 @@ def run_style_transfer(results_path,
             start_time = time.time()
 
             im = Image.fromarray(deprocess_img(init_image.numpy()))
-            im.save(results_path.as_posix() + '/test_{}.jpg'.format(i))
-
-        # # Display intermediate images
-        # if iter_count > num_rows * 5: 
-        #     continue
-        
-        # plt.subplot(num_rows, 5, iter_count)
-
-        # # Use the .numpy() method to get the concrete numpy array
-        # plot_img = init_image.numpy()
-        # plot_img = deprocess_img(plot_img)
-        # plt.imshow(plot_img)
-        # plt.title('Iteration {}'.format(i + 1))
-        # iter_count += 1
+            im.save(results_path.as_posix() + '/epoch_{}.jpg'.format(i))
 
     print('Total time: {:.4f}s'.format(time.time() - global_start))
         
@@ -299,5 +282,5 @@ best, best_loss = run_style_transfer(results_path,
                                      num_iterations=1000)
 
 # Save best result
-im = Image.fromarray(deprocess_img(best.numpy()))
+im = Image.fromarray(deprocess_img(best))
 im.save(results_path.as_posix() + '/best.jpg')
