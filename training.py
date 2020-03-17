@@ -10,7 +10,7 @@ from tensorflow.compat.v1 import InteractiveSession
 # TensorFlow GPU settings
 config = ConfigProto()
 config.gpu_options.allow_growth = True
-config.gpu_options.per_process_gpu_memory_fraction = 0.75
+config.gpu_options.per_process_gpu_memory_fraction = 0.5
 session = InteractiveSession(config=config)
 
 
@@ -280,7 +280,7 @@ def run_style_transfer(results_path,
 
 # Set up some global values here
 content_path = r"./images/taipei101.jpg"
-style_path = r"./images/scream.jpg"
+style_path = r"./images/rain_princess.jpg"
 results_path = Path('./results')
 results_path.mkdir(exist_ok=True, parents=True)
 

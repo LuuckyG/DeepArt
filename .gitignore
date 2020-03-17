@@ -3,3 +3,5 @@
 vgg19_weights.h5
 /model/__pycache__
 __pycache__/ 
+.vscode/
+.idea/ 
