@@ -1,1 +1,0 @@
-training --num_iteraties 2000 
