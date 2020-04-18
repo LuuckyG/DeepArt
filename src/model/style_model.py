@@ -9,20 +9,7 @@ from tensorflow.compat.v1 import InteractiveSession
 
 from .utils import load_img, deprocess_img, load_and_process_img
 
-# # TensorFlow GPU settings
-# config = ConfigProto()
-# config.gpu_options.allow_growth = True
-# config.gpu_options.per_process_gpu_memory_fraction = 0.5
-# session = InteractiveSession(config=config)
 
-
-def gram_matrix(input_tensor):
-    # We make the image channels first
-    channels = int(input_tensor.shape[-1])
-    input_tensor = tf.reshape(input_tensor, [-1, channels])
-    num_locations = tf.shape(input_tensor)[0]
-    gram = tf.matmul(input_tensor, input_tensor, transpose_a=True)
-    return gram / tf.cast(num_locations, tf.float32)
 
 
 class StyleModel:
@@ -65,7 +52,7 @@ class StyleModel:
 
         # Get the style and content feature representations
         self.style_features, self.content_features = self.get_feature_representations()
-        self.gram_style_features = [gram_matrix(style_feature) for style_feature in self.style_features]
+        self.gram_style_features = [self.gram_matrix(style_feature) for style_feature in self.style_features]
 
         # Set initial image
         self.init_image = load_and_process_img(self.content_path)
@@ -138,6 +125,15 @@ class StyleModel:
         content_features = [content_layer[0] for content_layer in content_outputs[self.num_style_layers:]]
         return style_features, content_features
     
+    @staticmethod
+    def gram_matrix(input_tensor):
+        # We make the image channels first
+        channels = int(input_tensor.shape[-1])
+        input_tensor = tf.reshape(input_tensor, [-1, channels])
+        num_locations = tf.shape(input_tensor)[0]
+        gram = tf.matmul(input_tensor, input_tensor, transpose_a=True)
+        return gram / tf.cast(num_locations, tf.float32)
+
     def train(self):
         start_time = time.time()
         global_start = time.time()
@@ -185,12 +181,11 @@ class StyleModel:
         total_loss = all_loss[0]
         return tape.gradient(total_loss, cfg['init_image']), all_loss
 
-    @staticmethod
-    def get_style_loss(base_style, gram_target):
+    def get_style_loss(self, base_style, gram_target):
         """Expects two images of dimension h, w, c"""
         # height, width, num filters of each layer
         height, width, channels = base_style.get_shape().as_list()
-        gram_style = gram_matrix(base_style)
+        gram_style = self.gram_matrix(base_style)
 
         return tf.reduce_mean(tf.square(gram_style - gram_target))
 
