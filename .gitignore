@@ -7,3 +7,4 @@ __pycache__/
 .idea/
 src/results/
 src/images/
+run_training.bat
