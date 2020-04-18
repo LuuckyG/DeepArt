@@ -15,24 +15,24 @@ class HParams:
 
         # Required arguments
         arg_parser.add_argument('--results_dir', '--rp', type=Path,
-                                default="./results",
+                                default="./src/results",
                                 help="Folder where the model results are saved in subfolders.")
         arg_parser.add_argument('--content_path', '--cp',type=Path,
                                 default="C:/Users/luukg/Downloads/Tim_en_Luuk.jpeg",
                                 help="Folder where the model results are saved.")
         arg_parser.add_argument('--style_path', '--sp', type=Path,
-                                default="./images/wave.jpg",
+                                default="./src/images/wave.jpg",
                                 help="Folder where the model results are saved.")
                         
         # Training arguments
-        arg_parser.add_argument('--content_layers', '--cl', type=tuple,
-                                default=('block4_conv2'), help="Content layer where we will pull our feature maps from")
-        arg_parser.add_argument('--content_layers', '--cl', type=tuple,
-                                default=('block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1','block5_conv1'), 
+        arg_parser.add_argument('--content_layers', '--cl', nargs='+', type=str,
+                                default='block4_conv2', help="Content layer where we will pull our feature maps from")
+        arg_parser.add_argument('--style_layers', '--sl', nargs='+', type=str,
+                                default=['block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1','block5_conv1'], 
                                 help="Style layer of interest")   
         arg_parser.add_argument('--num_iterations', '--ni', type=int,
                                 default=1000, help="Number of training interations")
-        arg_parser.add_argument('--display_num', '--ni', type=int,
+        arg_parser.add_argument('--display_num', '--dn', type=int,
                                 default=100, help="After 'display_num' iterations an intermediate image is saved.")
         arg_parser.add_argument('--content_weight', '--cw', type=float,
                                 default=1e3, help="Contribution of content loss to total loss")
