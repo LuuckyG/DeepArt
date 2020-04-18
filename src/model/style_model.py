@@ -10,8 +10,6 @@ from tensorflow.compat.v1 import InteractiveSession
 from .utils import load_img, deprocess_img, load_and_process_img
 
 
-
-
 class StyleModel:
 
     def __init__(self, results_path, content_path, style_path,
