@@ -26,8 +26,8 @@ def main(args):
     time_now = time_now = datetime.now()
 
     results_path = Path(args.results_dir /
-                     ('i_' + style_name 
-                    + '_sl_' + str(args.content_layers)
+                    (style_name 
+                    + '_sl_' + str(args.content_layers[0])
                     + '_e' + str(args.num_iterations)
                     + '_lr' + str(args.learning_rate) 
                     + '_b' + str(args.beta_1) 
@@ -38,7 +38,7 @@ def main(args):
     style_model = StyleModel(results_path=results_path, 
                              content_path=args.content_path, 
                              style_path=args.style_path,
-                             content_layers=[args.content_layers],
+                             content_layers=args.content_layers,
                              style_layers=args.style_layers,
                              num_iterations=args.num_iterations,
                              content_weight=args.content_weight, 
@@ -60,4 +60,5 @@ def main(args):
 
 if __name__ == '__main__':
     parameters = HParams().args
+    print(parameters)
     main(parameters)
