@@ -1,11 +1,9 @@
 import time
 import numpy as np
+import tensorflow as tf
+
 from PIL import Image
 from pathlib import Path
-
-import tensorflow as tf
-from tensorflow.compat.v1 import ConfigProto
-from tensorflow.compat.v1 import InteractiveSession
 
 from .utils import load_img, deprocess_img, load_and_process_img
 
@@ -62,13 +60,22 @@ class StyleModel:
                                             epsilon=epsilon)
 
         # Create a nice config 
-        self.loss_weights = (style_weight, content_weight)
+        self.loss_weights = (self.style_weight, self.content_weight)
         self.cfg = {
-            'model': self.model,
-            'loss_weights': self.loss_weights,
-            'init_image': self.init_image,
-            'gram_style_features': self.gram_style_features,
-            'content_features': self.content_features
+            'results_path': str(self.results_path),
+            'content_path': str(self.content_path),
+            'style_path': str(self.style_path),
+            'content_layers': self.content_layers,
+            'style_layers': self.style_layers,
+            'self.content_layers': self.num_content_layers,
+            'self.style_layers': self.num_style_layers,
+            'num_iterations': self.num_iterations,
+            'content_weight': self.content_weight,
+            'style_weight': self.style_weight,
+            'display_num': self.display_num,
+            'learning_rate': self.learning_rate,
+            'beta_1': self.beta_1,
+            'epsilon': self.epsilon
         }
     
     def get_model(self):
@@ -144,7 +151,7 @@ class StyleModel:
         best_loss, best_img = float('inf'), None
 
         for i in range(self.num_iterations):
-            grads, all_loss = self.compute_grads(self.cfg)
+            grads, all_loss = self.compute_grads()
             loss, style_score, content_score = all_loss
             # grads, _ = tf.clip_by_global_norm(grads, 5.0)
             self.opt.apply_gradients([(grads, self.init_image)])
@@ -172,12 +179,12 @@ class StyleModel:
             
         return best_img, best_loss
 
-    def compute_grads(self, cfg):
+    def compute_grads(self):
         with tf.GradientTape() as tape: 
-            all_loss = self.compute_loss(**cfg)
+            all_loss = self.compute_loss()
         # Compute gradients wrt input image
         total_loss = all_loss[0]
-        return tape.gradient(total_loss, cfg['init_image']), all_loss
+        return tape.gradient(total_loss, self.init_image), all_loss
 
     def get_style_loss(self, base_style, gram_target):
         """Expects two images of dimension h, w, c"""
@@ -191,7 +198,7 @@ class StyleModel:
     def get_content_loss(base_content, target):
         return tf.reduce_mean(tf.square(base_content - target))
 
-    def compute_loss(self, model, loss_weights, init_image, gram_style_features, content_features):
+    def compute_loss(self):
         """This function will compute the loss total loss.
 
         Arguments:
@@ -209,12 +216,12 @@ class StyleModel:
         Returns:
         returns the total loss, style loss, content loss, and total variational loss
         """
-        style_weight, content_weight = loss_weights
+        style_weight, content_weight = self.loss_weights
 
         # Feed our init image through our model. This will give us the content and 
         # style representations at our desired layers. Since we're using eager
         # our model is callable just like any other function!
-        model_outputs = model(init_image)
+        model_outputs = self.model(self.init_image)
 
         style_output_features = model_outputs[:self.num_style_layers]
         content_output_features = model_outputs[self.num_style_layers:]
@@ -225,12 +232,12 @@ class StyleModel:
         # Accumulate style losses from all layers
         # Here, we equally weight each contribution of each loss layer
         weight_per_style_layer = 1.0 / float(self.num_style_layers)
-        for target_style, comb_style in zip(gram_style_features, style_output_features):
+        for target_style, comb_style in zip(self.gram_style_features, style_output_features):
             style_score += weight_per_style_layer * self.get_style_loss(comb_style[0], target_style)
 
         # Accumulate content losses from all layers 
         weight_per_content_layer = 1.0 / float(self.num_content_layers)
-        for target_content, comb_content in zip(content_features, content_output_features):
+        for target_content, comb_content in zip(self.content_features, content_output_features):
             content_score += weight_per_content_layer* self.get_content_loss(comb_content[0], target_content)
 
         style_score *= style_weight

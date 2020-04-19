@@ -1,3 +1,5 @@
+import json
+
 from PIL import Image
 from pathlib import Path
 from datetime import datetime
@@ -21,7 +23,7 @@ def main(args):
     # Create folder
     style_name = args.style_path.stem
 
-    time_now = time_now = datetime.now()  
+    time_now = time_now = datetime.now()
 
     results_path = Path(args.results_dir /
                      ('i_' + style_name 
@@ -47,6 +49,9 @@ def main(args):
                              epsilon=args.epsilon)
 
     best, _ = style_model.train()
+
+    with open((results_path / 'config.json'), 'w') as fp:
+        json.dump(style_model.cfg, fp)
 
     # Save best result
     im = Image.fromarray(deprocess_img(best))

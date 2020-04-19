@@ -21,7 +21,7 @@ class HParams:
                                 default="C:/Users/luukg/Downloads/Tim_en_Luuk.jpeg",
                                 help="Folder where the model results are saved.")
         arg_parser.add_argument('--style_path', '--sp', type=Path,
-                                default="./src/images/wave.jpg",
+                                default="./src/images/rain_princess.jpg",
                                 help="Folder where the model results are saved.")
                         
         # Training arguments
