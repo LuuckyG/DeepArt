@@ -27,7 +27,7 @@ def main(args):
 
     results_path = Path(args.results_dir /
                     (style_name 
-                    + '_sl_' + str(args.content_layers[0])
+                    + '_cl_' + str(args.content_layers[0])
                     + '_e' + str(args.num_iterations)
                     + '_lr' + str(args.learning_rate) 
                     + '_b' + str(args.beta_1) 
